@@ -1,7 +1,7 @@
 # Differential Drive Kinematics in ROS 2 + Gazebo
 
 Group assignment for **EL6010 Robotics and Autonomous Systems** (ITB, 2026).
-Authors: Zahrah Fauziah · *[Choukri]*
+Authors: Zahrah Fauziah · Choukri
 
 We wrote the kinematic equations of a differential drive robot ourselves, drove **each wheel separately** in
 Gazebo (no diff-drive plugin), computed the pose from the **measured** wheel speeds, and compared it with
