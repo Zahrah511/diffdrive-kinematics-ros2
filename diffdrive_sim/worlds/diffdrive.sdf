@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<!--
+  Gazebo world for the differential drive assignment.
+  Robot model "diffbot":  L (wheel separation) = 0.5 m,  r (wheel radius) = 0.1 m.
+  L AND r MUST MATCH the kinematics node parameters (wheel_separation, wheel_radius).
+
+  Gazebo topics used (bridged to ROS by config/bridge.yaml):
+    /diffbot/left_wheel/cmd   (gz.msgs.Double, rad/s)   left wheel command
+    /diffbot/right_wheel/cmd  (gz.msgs.Double, rad/s)   right wheel command
+    /world/sor_world/model/diffbot/joint_state          measured wheel speeds
+    /model/diffbot/odometry                              true pose (ground truth)
+-->
+<sdf version="1.9">
+  <world name="sor_world">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>40 40</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>40 40</size></plane></geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ================================================================ ROBOT -->
+    <model name="diffbot">
+      <pose>0 0 0 0 0 0</pose>
+
+      <!-- Robot body. Robot centre = midpoint between the wheels (x = 0, y = 0). -->
+      <link name="chassis">
+        <pose>0 0 0.1 0 0 0</pose>
+        <inertial>
+          <mass>2.0</mass>
+          <inertia>
+            <ixx>0.01607</ixx><iyy>0.02773</iyy><izz>0.04167</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><box><size>0.4 0.3 0.08</size></box></geometry>
+          <material>
+            <ambient>0.35 0.3 0.75 1</ambient>
+            <diffuse>0.35 0.3 0.75 1</diffuse>
+          </material>
+        </visual>
+        <!-- Marker for the robot front (x axis) -->
+        <visual name="front_marker">
+          <pose>0.17 0 0.045 0 0 0</pose>
+          <geometry><box><size>0.06 0.06 0.01</size></box></geometry>
+          <material>
+            <ambient>0.9 0.4 0.1 1</ambient>
+            <diffuse>0.9 0.4 0.1 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.4 0.3 0.08</size></box></geometry>
+        </collision>
+      </link>
+
+      <!-- Left wheel: y = +L/2 = +0.25. A -90 degree roll points the wheel z axis to +y,
+           so a positive spin about that axis drives the robot forward. -->
+      <link name="left_wheel">
+        <pose>0 0.25 0.1 -1.5707963 0 0</pose>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.001317</ixx><iyy>0.001317</iyy><izz>0.0025</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.1</radius><length>0.04</length></cylinder></geometry>
+          <material>
+            <ambient>0.15 0.15 0.15 1</ambient>
+            <diffuse>0.15 0.15 0.15 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry><cylinder><radius>0.1</radius><length>0.04</length></cylinder></geometry>
+          <surface>
+            <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          </surface>
+        </collision>
+      </link>
+
+      <!-- Right wheel: y = -L/2 = -0.25 -->
+      <link name="right_wheel">
+        <pose>0 -0.25 0.1 -1.5707963 0 0</pose>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.001317</ixx><iyy>0.001317</iyy><izz>0.0025</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.1</radius><length>0.04</length></cylinder></geometry>
+          <material>
+            <ambient>0.15 0.15 0.15 1</ambient>
+            <diffuse>0.15 0.15 0.15 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry><cylinder><radius>0.1</radius><length>0.04</length></cylinder></geometry>
+          <surface>
+            <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          </surface>
+        </collision>
+      </link>
+
+      <!-- Passive rear caster: frictionless sphere, support only. -->
+      <link name="caster">
+        <pose>-0.15 0 0.05 0 0 0</pose>
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><sphere><radius>0.05</radius></sphere></geometry>
+          <surface>
+            <friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode></friction>
+          </surface>
+        </collision>
+      </link>
+
+      <joint name="left_wheel_joint" type="revolute">
+        <parent>chassis</parent>
+        <child>left_wheel</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit><lower>-1.79769e+308</lower><upper>1.79769e+308</upper></limit>
+        </axis>
+      </joint>
+
+      <joint name="right_wheel_joint" type="revolute">
+        <parent>chassis</parent>
+        <child>right_wheel</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit><lower>-1.79769e+308</lower><upper>1.79769e+308</upper></limit>
+        </axis>
+      </joint>
+
+      <joint name="caster_joint" type="fixed">
+        <parent>chassis</parent>
+        <child>caster</child>
+      </joint>
+
+      <!-- EACH WHEEL is controlled separately (not the DiffDrive plugin, so the kinematics stay in our code).
+           Commands in rad/s. Our nodes convert VR, VL [m/s] -> VR/r, VL/r. -->
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>left_wheel_joint</joint_name>
+        <topic>/diffbot/left_wheel/cmd</topic>
+        <initial_velocity>0.0</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>right_wheel_joint</joint_name>
+        <topic>/diffbot/right_wheel/cmd</topic>
+        <initial_velocity>0.0</initial_velocity>
+      </plugin>
+
+      <!-- Measured wheel speeds (what an encoder would read) -->
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>left_wheel_joint</joint_name>
+        <joint_name>right_wheel_joint</joint_name>
+      </plugin>
+
+      <!-- True pose from the simulator (ground truth), NOT our computation -->
+      <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>diffbot</robot_base_frame>
+        <dimensions>2</dimensions>
+        <odom_publish_frequency>50</odom_publish_frequency>
+      </plugin>
+    </model>
+
+  </world>
+</sdf>
