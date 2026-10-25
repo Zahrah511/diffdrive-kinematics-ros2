@@ -1,8 +1,5 @@
 __pycache__/
 *.pyc
-build/
-install/
-log/
-results/
-*.csv
-*.mp4
+/build/
+/install/
+/log/
