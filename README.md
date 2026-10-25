@@ -229,6 +229,32 @@ ros2 topic pub --once /right_wheel/cmd std_msgs/msg/Float64 "{data: 0.0}"
 - **Turn:** the true circle has R = 1.230 m instead of 1.250 m (least-squares circle fit), but still closes
   on itself, because ω matches and only the turning centre is shifted.
 
+#### Recordings
+
+**Straight** · [full video](docs/videos/v1_straight.mp4)
+
+![Straight](docs/gifs/v1_straight.gif)
+
+| Plot | Terminal |
+|---|---|
+| ![plot](docs/results/v1_straight_plot.png) | ![terminal](docs/results/v1_straight_terminal.png) |
+
+**Spin** · [full video](docs/videos/v1_spin.mp4)
+
+![Spin](docs/gifs/v1_spin.gif)
+
+| Plot | Terminal |
+|---|---|
+| ![plot](docs/results/v1_spin_plot.png) | ![terminal](docs/results/v1_spin_terminal.png) |
+
+**Turn** · [full video](docs/videos/v1_turn.mp4)
+
+![Turn](docs/gifs/v1_turn.gif)
+
+| Plot | Terminal |
+|---|---|
+| ![plot](docs/results/v1_turn_plot.png) | ![terminal](docs/results/v1_turn_terminal.png) |
+
 ### V2 — Inverse kinematics
 
 Wanted R = 2.000 m, V = 0.7 m/s → ω = 0.350 rad/s, VR = 0.7875 m/s, VL = 0.6125 m/s (printed by the node,
@@ -242,6 +268,20 @@ identical to the hand calculation). Gazebo drove R = **1.980 m**.
 A constant **absolute** offset (2 cm), not a constant percentage, plus the 2 cm circle of the spin test,
 all point to the same effect: Gazebo's turning centre is shifted by about 2 cm from the wheel midpoint.
 Our hypothesis is drag from the rear caster when the robot turns; we have not proven the cause.
+
+#### Recordings
+
+**Circle R = 2 m** · [full video](docs/videos/v2_circle.mp4)
+
+![Circle R = 2 m](docs/gifs/v2_circle.gif)
+
+| Plot | Terminal |
+|---|---|
+| ![plot](docs/results/v2_circle_plot.png) | ![terminal](docs/results/v2_circle_terminal.png) |
+
+**Live slider** · [full video](docs/videos/v2_slider.mp4)
+
+![Slider](docs/gifs/v2_slider.gif)
 
 ### V3 — Complex paths (not presented separately)
 
@@ -270,8 +310,9 @@ Goal (2, 1) in the robot frame (the `★ Goal: 2 m ahead, 1 m left` button):
 | Time | 4.64 s, never stops | 5.90 s (0.93 spin + 0.5 stop + 4.47 straight) |
 | Arrival heading | 53.1° | 26.6° |
 
-Measured arrival error (free-click tests, V = 1.0 m/s): **2.8, 5.0, 5.5 (B) and 5.6 cm (A)**; one run
-missed by 27.3 cm. A goal behind the robot needed a −260.7° arc (R = −0.41 m): the robot cannot slide
+Measured arrival error (free-click tests, V = 1.0 m/s), read after the robot settled:
+**2.8, 5.0, 5.6 cm (A)** and **5.5 cm (B)**. The first value shown at the moment of arrival is larger
+(7.3, 27.3, 12.1 cm) because the robot is still rolling to a stop; it settles within about 3 s. A goal behind the robot needed a −260.7° arc (R = −0.41 m): the robot cannot slide
 sideways, so it must loop around.
 
 Why Strategy B stops between spin and straight: without the stop the left wheel jumps by 0.8 m/s and the
@@ -279,6 +320,12 @@ right wheel by only 0.2 m/s; while the wheels catch up the robot turns a few deg
 misses by ~10–15 cm. With a slower spin and a 0.5 s stop both wheels restart from zero together.
 
 The goal is reached by the **robot reference point** (the midpoint between the wheels), not by the front.
+
+#### Recording
+
+**Goal map** · [full video](docs/videos/v5_goal.mp4)
+
+![Goal map](docs/gifs/v5_goal.gif)
 
 ---
 
@@ -313,7 +360,9 @@ diffdrive_sim/                 ROS 2 package (ament_python)
 └── scripts/plot_run.py        plot + summary of one run
 tests/test_kinematics.py       equation checks against hand-computed numbers
 tools/make_v4_figure.py        Variation 4 figure
-docs/figures/                  figures
+docs/figures/                  V4 figure
+docs/results/                  plots and terminal output (V1, V2)
+docs/videos/, docs/gifs/       recordings (MP4) and previews (GIF)
 ```
 
 ## License
