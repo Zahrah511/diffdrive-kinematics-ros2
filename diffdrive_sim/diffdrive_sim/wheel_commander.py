@@ -10,7 +10,6 @@ Examples:
   ros2 run diffdrive_sim wheel_commander --ros-args -p use_sim_time:=true -p scenario:=v5_arc -p goal_x:=2.0 -p goal_y:=1.0
 
 Scenarios: v1_straight, v1_spin, v1_turn, v2_circle, v3_square, v3_figure8, v5_arc, v5_spin_straight
-(the older Indonesian names v1_lurus, v1_putar, ... still work)
 """
 import math
 
